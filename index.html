@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LiquidJet Power Map Studio | Workload-aware stage mapping (concept)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="locale">
+  <a href="#"><img src="assets/flag-en.png" alt="">EN</a>
+  <a href="#"><img src="assets/flag-cn.png" alt="">CN</a>
+</div>
+
+<header class="hero">
+  <nav class="navbar">
+    <a class="logo" href="https://www.froresystems.com/"><img src="assets/logo-white.png" alt="Frore Systems"></a>
+    <div class="navlinks">
+      <a class="nav-item">Products <svg viewBox="0 0 16 16"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+      <a class="nav-item">Applications <svg viewBox="0 0 16 16"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+      <a class="nav-item">News <svg viewBox="0 0 16 16"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+      <a class="nav-item">About Us <svg viewBox="0 0 16 16"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+      <a class="nav-item">Resources <svg viewBox="0 0 16 16"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+      <a class="nav-item">Contact</a>
+    </div>
+  </nav>
+  <div class="hero-copy">
+    <h1>LiquidJet<sup>®</sup> <span class="thin">Power Map Studio</span></h1>
+    <div class="sub">Workload-aware stage mapping</div>
+    <div class="claims">Stage once<br>Cool every workload<br>More AI Tokens per Watt</div>
+  </div>
+</header>
+
+<main class="section">
+  <!-- 1. the problem: power maps move with the workload -->
+  <div style="margin-top:56px">
+    <div class="figure" style="padding:20px 22px">
+      <div class="fig-title">Test vehicle TV-2D, <span id="tv-power">1,400</span> W: one GPU, three power maps</div>
+      <div class="with-legend" style="grid-template-columns:1fr 84px">
+        <div class="maps" id="power-maps" style="grid-template-columns:repeat(3,1fr)"></div>
+        <div class="legend" id="power-legend"></div>
+      </div>
+    </div>
+    <div class="caption">The hotspots move with the workload: tensor-core GPCs in prefill, HBM PHY and L2 in decode, die-to-die link in training</div>
+  </div>
+  <div class="row" style="grid-template-columns:1fr 1fr;gap:0 48px">
+    <div class="copy">
+      <h2 class="big">Customized to the mix, not one map</h2>
+      <p>LiquidJet is a 3D ultra short-loop coldplate whose multi-stage architecture is customized to the GPU power map: the entire flow cools the hotspots first, before the rest of the die. Power Map Studio extends that customization from one power map to the <b>workload mix</b> a fleet actually runs.</p>
+      <p>An inference fleet spends most of its hours in decode, where the heat moves from the tensor-core GPCs to the HBM PHY and L2. A coldplate staged only to the compute-bound TDP map cools prefill well and leaves decode's hotspots in the last, warmest stage.</p>
+    </div>
+    <div class="copy">
+      <h3 class="mid" style="margin-top:6px">Studio results on TV-2D</h3>
+      <p>Fleet mix: <span id="mix-text"></span>.</p>
+      <ul id="headline-list"></ul>
+      <div class="btn-row" style="margin-top:14px"><a class="btn" href="#studio" style="white-space:nowrap">Open the Studio</a><span class="status">Synthetic test vehicle. Every number on this page is computed in your browser.</span></div>
+    </div>
+  </div>
+
+  <!-- 2. stage maps -->
+  <div class="row flip" style="margin-top:80px;grid-template-columns:1fr 680px">
+    <div class="copy">
+      <h2 class="big">Multi-stage, mapped to the mix</h2>
+      <p>Each 4.5 mm microcell tile is assigned to stage 1, 2 or 3. The full coolant flow passes stage 1 first, so it gets the coldest coolant and the highest jet velocity. Smaller early stages cool harder but cost pressure drop, so the stage areas are bounded by the <span id="dp-budget-text"></span> psi budget.</p>
+      <p>Studio solves a two-layer conduction model of die, TIM and copper base with staged coolant temperatures for every workload, then searches tile assignments (a cut search over a power-weighted tile ranking, followed by seeded boundary moves) to maximize fleet token throughput with DVFS throttling at T<sub>Jmax</sub> = 95 °C.</p>
+      <p>With <b>LiquidJet Diamond</b>, Studio also places the diamond inserts where they help the whole mix most.</p>
+      <div class="stage-legend" id="stage-legend"></div>
+    </div>
+    <div>
+      <div class="figure">
+        <div class="fig-title">Stage map</div>
+        <div class="maps" id="stage-maps" style="grid-template-columns:1fr 1fr"></div>
+      </div>
+      <div class="caption">Cold inlet → stage 1 → stage 2 → stage 3 → hot exit</div>
+    </div>
+  </div>
+
+  <!-- 3. Tj maps -->
+  <div style="margin-top:70px">
+    <h2 class="big" style="text-align:center">Die Temp (T<sub>J</sub>) by workload</h2>
+    <div style="display:flex;justify-content:center;margin:4px 0 16px"><div class="seg" id="variant-seg"><button data-v="copper" class="on">LiquidJet</button><button data-v="diamond">LiquidJet Diamond</button></div></div>
+    <div class="figure" style="padding:20px 22px">
+      <div class="with-legend" style="grid-template-columns:1fr 84px">
+        <div class="tj-grid" id="tj-grid"></div>
+        <div class="legend" id="tj-legend"></div>
+      </div>
+    </div>
+    <div class="caption">Inlet <span id="cap-inlet"></span> °C PG25 at <span id="cap-flow"></span> lpm | T<sub>Jmax</sub> limit 95 °C | TIM 0.02 K·cm²/W, un-lidded</div>
+  </div>
+
+  <!-- 4. table -->
+  <div style="margin:70px auto 0;width:900px">
+    <div class="perf-title">Performance on Test Vehicle TV-2D</div>
+    <table class="perf" id="perf"></table>
+    <div class="note" id="perf-note"></div>
+  </div>
+
+  <!-- 5. controls -->
+  <div id="studio" style="margin-top:70px">
+    <h2 class="big" style="text-align:center;margin-bottom:22px">Run the Studio</h2>
+    <div class="panel">
+      <div class="controls">
+        <div class="ctl"><label>Prefill share <span class="val" id="v-prefill"></span></label><input type="range" id="s-prefill" min="0" max="100" step="5"></div>
+        <div class="ctl"><label>Decode share <span class="val" id="v-decode"></span></label><input type="range" id="s-decode" min="0" max="100" step="5"></div>
+        <div class="ctl"><label>Training share <span class="val" id="v-training"></span></label><input type="range" id="s-training" min="0" max="100" step="5"></div>
+        <div class="ctl"><label>Diamond inserts <span class="val" id="v-dia"></span></label><input type="range" id="s-dia" min="0" max="4" step="1"></div>
+        <div class="ctl"><label>Flow rate <span class="val" id="v-flow"></span></label><input type="range" id="s-flow" min="1.0" max="2.4" step="0.1"></div>
+        <div class="ctl"><label>Inlet temperature <span class="val" id="v-inlet"></span></label><input type="range" id="s-inlet" min="30" max="50" step="1"></div>
+        <div class="ctl"><label>Pressure-drop budget <span class="val" id="v-dp"></span></label><input type="range" id="s-dp" min="0.18" max="0.45" step="0.01"></div>
+        <div class="ctl"><label>Single-map design target</label><div class="seg" id="target-seg"><button data-t="prefill" class="on">Prefill</button><button data-t="decode">Decode</button><button data-t="training">Training</button></div></div>
+      </div>
+      <div class="btn-row"><button class="btn" id="run">Re-optimize</button><button class="btn ghost" id="reset">Reset</button><span class="status" id="status"></span></div>
+    </div>
+  </div>
+
+  <!-- 6. method card -->
+  <div class="wp-card">
+    <span class="pill">Method</span>
+    <h3>How Power Map Studio works</h3>
+    <p><b>Thermal model.</b> 48 × 24 cells of 1.5 mm. Die layer (lateral conduction in silicon, weak coupling across die seams and HBM stacks) connected through package + TIM resistance to a copper base plate (diamond inserts add in-plane conductance), which convects to staged coolant. Solved with preconditioned conjugate gradient; the stage coolant temperatures are iterated to energy balance (heat into coolant = GPU power).</p>
+    <p><b>Stages.</b> h ∝ (flow / stage area)<sup>0.6</sup> with a geometry ceiling; pressure drop ∝ (flow / stage area)<sup>1.75</sup> summed over stages. T<sub>JA</sub> is the power-weighted die temperature, as defined in Frore's "Thermal Stack" white paper.</p>
+    <p><b>Tokens.</b> At a fixed power cap, leakage doubles every 10 °C and switching energy rises 2% per 10 °C (white-paper rules of thumb, calibrated to −1.5%/°C at 89 °C). If T<sub>Jmax</sub> exceeds 95 °C, DVFS cuts power until it doesn't; that lost throughput is what the optimizer avoids.</p>
+    <p><b>Honest limits.</b> Synthetic floorplan and power maps; correlations are first-order, not CFD; the throttle model is frequency-only DVFS, so it is an upper bound on the loss.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="foot">
+    <div class="about">
+      <img src="assets/logo-white.png" alt="Frore Systems">
+      <p>Frore Systems is a pioneer in advanced thermal technologies that unleash performance across data centers and edge devices. The company's flagship solutions include LiquidJet®, a 3D ultra short-loop multi-stage coldplate for data centers, and AirJet®, the world's first solid-state active cooling chip.</p>
+      <div class="follow">Follow us</div>
+    </div>
+    <div class="links">
+      <a>Products <svg viewBox="0 0 16 16"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+      <a>Applications <svg viewBox="0 0 16 16"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+      <a>News <svg viewBox="0 0 16 16"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+      <a>About Us <svg viewBox="0 0 16 16"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+      <a>Resources <svg viewBox="0 0 16 16"><polyline points="3,6 8,11 13,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+      <a>Contact</a>
+      <a>Privacy Policy</a>
+    </div>
+    <div class="blurb">Power Map Studio is a concept tool: a coldplate is a fixed piece of copper, but the power map it cools changes with every kernel. Studio designs the stage map and diamond placement for the workload mix, not just the TDP map.</div>
+  </div>
+  <div class="copyright">Unofficial concept demo by Mohith Gajjela. Not affiliated with Frore Systems. Synthetic data.</div>
+  <div class="disclaimer">LiquidJet, LiquidJet Diamond and AirJet are trademarks of Frore Systems, used here only to describe the concept.</div>
+</footer>
+<div class="tip" id="tip"></div>
+
+<script src="core/studio.js"></script>
+<script src="data/workloads.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
