@@ -72,12 +72,12 @@ h3.mid { font-size: 22px; line-height: 28px; font-weight: 700; margin: 0 0 10px;
 .map-cell .stat .over { color: #f28123; font-weight: 700; }
 .map-cell .stat .ok { color: var(--dark-turquoise); font-weight: 700; }
 .legend { display: flex; flex-direction: column; align-items: flex-start; font-size: 17px; line-height: 18.6px; }
-.legend .ttl { font-size: 18px; font-weight: 700; margin-bottom: 6px; white-space: nowrap; }
+.legend .ttl { font-size: 18px; line-height: 22px; font-weight: 700; margin-bottom: 6px; white-space: nowrap; }
 .legend .ttl small { font-size: 12px; font-weight: 400; }
 .legend .scale { display: flex; gap: 6px; }
 .legend .bar { width: 15px; border: 1px solid #8c8c8c; display: flex; flex-direction: column; }
 .legend .bar i { display: block; height: 18.6px; }
-.legend .ticks { display: flex; flex-direction: column; justify-content: space-between; margin: -9px 0; }
+.legend .ticks { display: flex; flex-direction: column; justify-content: space-between; margin: -0.5em 0; }
 .with-legend { display: grid; grid-template-columns: 1fr 74px; gap: 18px; align-items: start; }
 
 .tj-grid { display: grid; grid-template-columns: 120px repeat(3, 1fr); gap: 10px 14px; align-items: center; }

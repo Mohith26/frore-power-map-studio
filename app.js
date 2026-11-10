@@ -85,8 +85,10 @@
     }
   }
 
-  function legend(el, title, unit, lo, step) {
-    const bars = BANDS.slice().reverse().map(c => `<i style="background:${c}"></i>`).join('');
+  function legend(el, title, unit, lo, step, bandPx) {
+    const bh = bandPx || 18.6;
+    el.style.lineHeight = bh + 'px'; el.style.fontSize = (bh < 15 ? 13 : 17) + 'px';
+    const bars = BANDS.slice().reverse().map(c => `<i style="background:${c};height:${bh}px"></i>`).join('');
     const ticks = [];
     for (let b = BANDS.length; b >= 0; b--) ticks.push(`<span>${(lo + b * step).toFixed(step < 1 ? 1 : 0)}</span>`);
     el.innerHTML = `<div class="ttl">${title} <small>${unit}</small></div><div class="scale"><div class="bar">${bars}</div><div class="ticks">${ticks.join('')}</div></div>`;
@@ -121,7 +123,7 @@
       drawField(cv, dens, 0, step);
       attachTip(cv, (k, i, j) => `${w.label} · ${regionName(k)}<br>${fmt(i * P0.dx, 1)}, ${fmt(j * P0.dx, 1)} mm · <b>${fmt(dens[k], 0)} W/cm²</b>`);
     }
-    legend($('power-legend'), 'Power', '[W/cm²]', 0, step);
+    legend($('power-legend'), 'Power', '[W/cm²]', 0, step, 11.5);
     $('tv-power').textContent = DATA.totalW.toLocaleString();
   }
 
